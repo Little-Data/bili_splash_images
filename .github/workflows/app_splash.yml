@@ -38,34 +38,24 @@ jobs:
           # 获取当天日期（格式：YYYYMMDD）
           today_date=$(date +'%Y%m%d')
           
-          # 查找当天生成的所有文件夹（文件夹名以当天日期开头）
-          today_folders=($(find app_splash -type d -name "${today_date}_*"))
+          # 查找当天生成的所有图片文件，使用完整路径，正确处理空格
+          # 1. 先找到当天的文件夹
+          # 2. 再在这些文件夹中查找所有非hash.txt文件
+          # 3. 使用-print0和readarray确保空格被正确处理
+          readarray -d '' today_images < <(find app_splash -type d -name "${today_date}_*" -exec find {} -type f ! -name "hash.txt" \; | xargs -0)
           
-          # 初始化图片数组
-          today_images=()
-          
-          # 如果找到当天文件夹，遍历所有文件夹查找图片文件
-          if [ ${#today_folders[@]} -gt 0 ]; then
-            for folder in "${today_folders[@]}"; do
-              # 查找文件夹中的所有文件
-              # 排除hash.txt文件
-              folder_images=($(find "$folder" -type f ! -name "hash.txt"))
-              # 将找到的图片添加到总数组中
-              today_images+=("${folder_images[@]}")
-            done
-          fi
-          
-          # 如果找到当天图片，随机选择一张
+          # 检查是否找到图片
           if [ ${#today_images[@]} -gt 0 ]; then
             # 生成随机索引
             random_index=$((RANDOM % ${#today_images[@]}))
-            # 获取随机选择的图片
-            selected_image=${today_images[$random_index]}
+            # 获取随机选择的图片（去除末尾的换行符）
+            selected_image=$(echo -n "${today_images[$random_index]}")
             
             # 强制使用png扩展名
             extension="png"
             
             # 复制到today文件夹，命名为today_app_splash.png
+            # 使用双引号包裹路径，确保空格被正确处理
             cp "$selected_image" "today/today_app_splash.$extension"
             echo "已从当天图片中随机选择: $selected_image 复制到 today/today_app_splash.$extension（强制PNG格式）"
             echo "image_copied=true" >> $GITHUB_OUTPUT
