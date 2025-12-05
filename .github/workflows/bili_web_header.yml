@@ -35,17 +35,15 @@ jobs:
           mkdir -p today
           # 获取当天日期（与程序生成的文件名格式匹配）
           today_date=$(date +'%Y%m%d')
-          # 获取当天生成的所有图片列表
-          img_list=($(ls -1 bili_web_header/${today_date}_*.jpg 2>/dev/null))
+          # 获取当天生成的所有图片列表（支持多种格式）
+          img_list=($(ls -1 bili_web_header/${today_date}_*.* 2>/dev/null))
           # 检查是否有图片
           if [ ${#img_list[@]} -gt 0 ]; then
             # 随机选择一张图片
             random_img=${img_list[$RANDOM % ${#img_list[@]}]}
-            # 提取文件扩展名（处理可能的不同格式）
-            ext="${random_img##*.}"
-            # 复制到today文件夹，命名为today_web_header.扩展名
-            cp "$random_img" "today/today_web_header.$ext"
-            echo "已复制随机图片: $random_img -> today/today_web_header.$ext"
+            # 强制使用PNG扩展名复制到today文件夹
+            cp "$random_img" "today/today_web_header.png"
+            echo "已复制随机图片: $random_img -> today/today_web_header.png"
           else
             echo "当天没有生成新图片，跳过复制步骤"
           fi
