@@ -1,4 +1,4 @@
-name: 自动获取B站首页图片并提交
+name:  Web 首页头图
 
 on:
   schedule:
