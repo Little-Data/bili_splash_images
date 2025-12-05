@@ -1,74 +1,97 @@
-name: 自动获取B站首页图片并提交
+name: 自动执行获取APP启动图程序
 
 on:
   schedule:
-    # 每天UTC时间2点执行（对应北京时间10点，UTC+8）
+    # 每天UTC时间2点执行，对应中国标准时间(UTC+8)10点
     - cron: '0 2 * * *'
   workflow_dispatch:  # 允许手动触发
 
 jobs:
-  run-getimg:
+  run-script:
     runs-on: ubuntu-latest
     
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
         with:
-          persist-credentials: false  # 禁用默认凭证，使用GitHub Token
+          fetch-depth: 0  # 确保获取完整历史记录
       
       - name: 设置Python环境
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: '3.10'  # 选择合适的Python版本
       
       - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
-          pip install requests beautifulsoup4 python-dateutil
+          pip install aiohttp orjson  # 安装脚本所需依赖
       
-      - name: 执行图片获取程序
-        run: python getimg.py
+      - name: 执行程序
+        run: python get_app_splash.py
       
-      - name: 随机选择最新图片到today文件夹
+      - name: 创建today文件夹（如果不存在）
+        run: mkdir -p today
+      
+      - name: 随机选择当天图片并复制到today文件夹
+        id: copy-today-image
         run: |
-          # 创建today文件夹（如果不存在）
-          mkdir -p today
-          # 获取当天日期（与程序生成的文件名格式匹配）
-          today_date=$(date +'%Y%m%d')
-          # 获取当天生成的所有图片列表（支持多种格式）
-          img_list=($(ls -1 bili_web_header/${today_date}_*.* 2>/dev/null))
-          # 检查是否有图片
-          if [ ${#img_list[@]} -gt 0 ]; then
-            # 随机选择一张图片
-            random_img=${img_list[$RANDOM % ${#img_list[@]}]}
-            # 强制使用PNG扩展名复制到today文件夹
-            cp "$random_img" "today/today_web_header.png"
-            echo "已复制随机图片: $random_img -> today/today_web_header.png"
-          else
-            echo "当天没有生成新图片，跳过复制步骤"
-          fi
+          # 获取当天日期（格式：YYYY-MM-DD）
+          today_date=$(date +'%Y-%m-%d')
+          
+          # 使用Python脚本处理，避免bash数组和空格问题
+          python3 << 'EOF'
+          import os
+          import random
+          import glob
+          
+          # 获取当天日期（格式：YYYY-MM-DD）
+          today_date = os.popen('date +%Y-%m-%d').read().strip()
+          
+          # 查找当天的文件夹（格式：bili_web_header/YYYY-MM-DD）
+          today_folder = f'bili_web_header/{today_date}'
+          
+          # 收集所有非TXT文件（排除链接信息文件）
+          today_images = []
+          if os.path.isdir(today_folder):
+              # 遍历文件夹中的所有文件，排除TXT链接信息文件
+              for file in os.listdir(today_folder):
+                  file_path = os.path.join(today_folder, file)
+                  if os.path.isfile(file_path) and not file.lower().endswith('.txt'):
+                      today_images.append(file_path)
+          
+          # 如果找到图片，随机选择一张
+          if today_images:
+              selected_image = random.choice(today_images)
+              output_path = 'today/today_app_splash.png'  # 强制使用PNG扩展名
+              
+              # 复制文件，使用shutil确保跨平台兼容性
+              import shutil
+              shutil.copy2(selected_image, output_path)
+              
+              print(f"已从当天图片中随机选择: {selected_image} 复制到 {output_path}（强制PNG格式）")
+              print("image_copied=true")
+          else:
+              print("未找到当天生成的图片文件，跳过复制步骤")
+              print("image_copied=false")
+          EOF
       
-      - name: 配置Git用户信息
+      - name: 配置Git
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
       
-      - name: 检查是否有文件变化
+      - name: 检查是否有新的更改
         id: check-changes
         run: |
-          git status
-          echo "has_changes=$(git status --porcelain | grep -q . && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+          if git status --porcelain | grep -q -E "(bili_web_header/|today/)"; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
       
-      - name: 提交文件到仓库
-        if: steps.check-changes.outputs.has_changes == 'true'
+      - name: 提交更改
+        if: steps.check-changes.outputs.changes == 'true'
         run: |
-          # 添加bili_web_header和today文件夹的所有变更
           git add bili_web_header/ today/
-          git commit -m "Auto update Bilibili header images $(date +'%Y-%m-%d')"
-      
-      - name: 推送更改
-        if: steps.check-changes.outputs.has_changes == 'true'
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
+          git commit -m "自动更新APP启动图 $(date +'%Y-%m-%d')"
+          git push
