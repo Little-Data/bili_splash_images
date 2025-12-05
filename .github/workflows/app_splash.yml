@@ -1,4 +1,4 @@
-name: 自动执行获取APP启动图程序
+name: App 启动图
 
 on:
   schedule:
