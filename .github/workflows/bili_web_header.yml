@@ -1,0 +1,76 @@
+name: 自动获取B站首页图片并提交
+
+on:
+  schedule:
+    # 每天UTC时间2点执行（对应北京时间10点，UTC+8）
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  run-getimg:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false  # 禁用默认凭证，使用GitHub Token
+      
+      - name: 设置Python环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'  # 选择合适的Python版本
+      
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 python-dateutil
+      
+      - name: 执行图片获取程序
+        run: python getimg.py
+      
+      - name: 随机选择最新图片到today文件夹
+        run: |
+          # 创建today文件夹（如果不存在）
+          mkdir -p today
+          # 获取当天日期（与程序生成的文件名格式匹配）
+          today_date=$(date +'%Y%m%d')
+          # 获取当天生成的所有图片列表
+          img_list=($(ls -1 bili_web_header/${today_date}_*.jpg 2>/dev/null))
+          # 检查是否有图片
+          if [ ${#img_list[@]} -gt 0 ]; then
+            # 随机选择一张图片
+            random_img=${img_list[$RANDOM % ${#img_list[@]}]}
+            # 提取文件扩展名（处理可能的不同格式）
+            ext="${random_img##*.}"
+            # 复制到today文件夹，命名为today_web_header.扩展名
+            cp "$random_img" "today/today_web_header.$ext"
+            echo "已复制随机图片: $random_img -> today/today_web_header.$ext"
+          else
+            echo "当天没有生成新图片，跳过复制步骤"
+          fi
+      
+      - name: 配置Git用户信息
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+      
+      - name: 检查是否有文件变化
+        id: check-changes
+        run: |
+          git status
+          echo "has_changes=$(git status --porcelain | grep -q . && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+      
+      - name: 提交文件到仓库
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          # 添加bili_web_header和today文件夹的所有变更
+          git add bili_web_header/ today/
+          git commit -m "Auto update Bilibili header images $(date +'%Y-%m-%d')"
+      
+      - name: 推送更改
+        if: steps.check-changes.outputs.has_changes == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
