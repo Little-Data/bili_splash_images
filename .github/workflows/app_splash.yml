@@ -14,7 +14,7 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 确保获取完整历史记录
+          fetch-depth: 1
       
       - name: 设置Python环境
         uses: actions/setup-python@v5
@@ -32,7 +32,7 @@ jobs:
       - name: 创建today文件夹（如果不存在）
         run: mkdir -p today
       
-      - name: 随机选择当天图片并复制到today文件夹（强制PNG格式）
+      - name: 随机选择当天图片并复制到today文件夹
         id: copy-today-image
         run: |
           # 获取当天日期（格式：YYYYMMDD）
@@ -50,14 +50,14 @@ jobs:
           # 查找当天的所有文件夹
           today_folders = glob.glob(f'app_splash/{today_date}_*')
           
-          # 收集所有图片文件
+          # 收集所有图片文件，排除hash.txt和image_links.txt
           today_images = []
           for folder in today_folders:
               if os.path.isdir(folder):
-                  # 遍历文件夹中的所有文件，排除hash.txt
+                  # 遍历文件夹中的所有文件，排除hash.txt和image_links.txt
                   for file in os.listdir(folder):
                       file_path = os.path.join(folder, file)
-                      if os.path.isfile(file_path) and file != 'hash.txt':
+                      if os.path.isfile(file_path) and file not in ['hash.txt', 'image_links.txt']:
                           today_images.append(file_path)
           
           # 如果找到图片，随机选择一张
@@ -69,7 +69,7 @@ jobs:
               import shutil
               shutil.copy2(selected_image, output_path)
               
-              print(f"已从当天图片中随机选择: {selected_image} 复制到 {output_path}（强制PNG格式）")
+              print(f"已从当天图片中随机选择: {selected_image} 复制到 {output_path}")
               print("image_copied=true")
           else:
               print("未找到当天生成的图片文件，跳过复制步骤")
