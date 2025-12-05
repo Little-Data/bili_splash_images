@@ -1,0 +1,96 @@
+name: 自动执行获取APP启动图程序
+
+on:
+  schedule:
+    # 每天UTC时间2点执行，对应中国标准时间(UTC+8)10点
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 确保获取完整历史记录
+      
+      - name: 设置Python环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'  # 选择合适的Python版本
+      
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install aiohttp orjson  # 安装脚本所需依赖
+      
+      - name: 执行程序
+        run: python get_app_splash.py
+      
+      - name: 创建today文件夹（如果不存在）
+        run: mkdir -p today
+      
+      - name: 随机选择当天图片并复制到today文件夹
+        id: copy-today-image
+        run: |
+          # 获取当天日期（格式：YYYYMMDD）
+          today_date=$(date +'%Y%m%d')
+          
+          # 查找当天生成的所有文件夹（文件夹名以当天日期开头）
+          today_folders=($(find app_splash -type d -name "${today_date}_*"))
+          
+          # 初始化图片数组
+          today_images=()
+          
+          # 如果找到当天文件夹，遍历所有文件夹查找图片文件
+          if [ ${#today_folders[@]} -gt 0 ]; then
+            for folder in "${today_folders[@]}"; do
+              # 查找文件夹中的所有文件
+              # 排除hash.txt文件
+              folder_images=($(find "$folder" -type f ! -name "hash.txt"))
+              # 将找到的图片添加到总数组中
+              today_images+=("${folder_images[@]}")
+            done
+          fi
+          
+          # 如果找到当天图片，随机选择一张
+          if [ ${#today_images[@]} -gt 0 ]; then
+            # 生成随机索引
+            random_index=$((RANDOM % ${#today_images[@]}))
+            # 获取随机选择的图片
+            selected_image=${today_images[$random_index]}
+            
+            # 强制使用png扩展名
+            extension="png"
+            
+            # 复制到today文件夹，命名为today_app_splash.png
+            cp "$selected_image" "today/today_app_splash.$extension"
+            echo "已从当天图片中随机选择: $selected_image 复制到 today/today_app_splash.$extension（强制PNG格式）"
+            echo "image_copied=true" >> $GITHUB_OUTPUT
+          else
+            echo "未找到当天生成的图片文件，跳过复制步骤"
+            echo "image_copied=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: 配置Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: 检查是否有新的更改
+        id: check-changes
+        run: |
+          if git status --porcelain | grep -q -E "(app_splash/|today/)"; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: 提交更改
+        if: steps.check-changes.outputs.changes == 'true'
+        run: |
+          git add app_splash/ today/
+          git commit -m "自动更新APP启动图 $(date +'%Y-%m-%d')"
+          git push
