@@ -1,0 +1,2 @@
+# bili_splash_images
+B站web头图和app开屏图自动下载，使用Actions
