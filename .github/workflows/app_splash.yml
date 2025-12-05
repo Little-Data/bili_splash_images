@@ -32,37 +32,49 @@ jobs:
       - name: 创建today文件夹（如果不存在）
         run: mkdir -p today
       
-      - name: 随机选择当天图片并复制到today文件夹
+      - name: 随机选择当天图片并复制到today文件夹（强制PNG格式）
         id: copy-today-image
         run: |
           # 获取当天日期（格式：YYYYMMDD）
           today_date=$(date +'%Y%m%d')
           
-          # 查找当天生成的所有图片文件，使用完整路径，正确处理空格
-          # 1. 先找到当天的文件夹
-          # 2. 再在这些文件夹中查找所有非hash.txt文件
-          # 3. 使用-print0和readarray确保空格被正确处理
-          readarray -d '' today_images < <(find app_splash -type d -name "${today_date}_*" -exec find {} -type f ! -name "hash.txt" \; | xargs -0)
+          # 使用Python脚本处理，避免bash数组和空格问题
+          python3 << 'EOF'
+          import os
+          import random
+          import glob
           
-          # 检查是否找到图片
-          if [ ${#today_images[@]} -gt 0 ]; then
-            # 生成随机索引
-            random_index=$((RANDOM % ${#today_images[@]}))
-            # 获取随机选择的图片（去除末尾的换行符）
-            selected_image=$(echo -n "${today_images[$random_index]}")
-            
-            # 强制使用png扩展名
-            extension="png"
-            
-            # 复制到today文件夹，命名为today_app_splash.png
-            # 使用双引号包裹路径，确保空格被正确处理
-            cp "$selected_image" "today/today_app_splash.$extension"
-            echo "已从当天图片中随机选择: $selected_image 复制到 today/today_app_splash.$extension（强制PNG格式）"
-            echo "image_copied=true" >> $GITHUB_OUTPUT
-          else
-            echo "未找到当天生成的图片文件，跳过复制步骤"
-            echo "image_copied=false" >> $GITHUB_OUTPUT
-          fi
+          # 获取当天日期
+          today_date = os.popen('date +%Y%m%d').read().strip()
+          
+          # 查找当天的所有文件夹
+          today_folders = glob.glob(f'app_splash/{today_date}_*')
+          
+          # 收集所有图片文件
+          today_images = []
+          for folder in today_folders:
+              if os.path.isdir(folder):
+                  # 遍历文件夹中的所有文件，排除hash.txt
+                  for file in os.listdir(folder):
+                      file_path = os.path.join(folder, file)
+                      if os.path.isfile(file_path) and file != 'hash.txt':
+                          today_images.append(file_path)
+          
+          # 如果找到图片，随机选择一张
+          if today_images:
+              selected_image = random.choice(today_images)
+              output_path = 'today/today_app_splash.png'
+              
+              # 复制文件，使用shutil确保跨平台兼容性
+              import shutil
+              shutil.copy2(selected_image, output_path)
+              
+              print(f"已从当天图片中随机选择: {selected_image} 复制到 {output_path}（强制PNG格式）")
+              print("image_copied=true")
+          else:
+              print("未找到当天生成的图片文件，跳过复制步骤")
+              print("image_copied=false")
+          EOF
       
       - name: 配置Git
         run: |
