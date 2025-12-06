@@ -1,0 +1,30 @@
+name: 每日壁纸喵
+
+on:
+  schedule:
+    # 中国标准时间（UTC+8）上午10点，对应 UTC 时间 2 点
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # 允许手动触发，方便测试
+
+jobs:
+  copy-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python 环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: 运行脚本复制随机图片
+        run: python daily_bizhiniang.py
+
+      - name: 提交并推送更改
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add today/
+          git commit -m "每日壁纸喵 $(date +'%Y-%m-%d')" || echo "没有需要提交的更改"
+          git push
