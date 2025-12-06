@@ -1,4 +1,4 @@
-name:  Web 首页头图
+name: bili_web_header
 
 on:
   schedule:
