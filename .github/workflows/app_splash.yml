@@ -1,4 +1,4 @@
-name: App 启动图
+name: app_splash
 
 on:
   schedule:
