@@ -6,6 +6,8 @@ B站WEB头图和APP开屏图自动下载，使用Actions
 
 [![App 启动图](https://github.com/Little-Data/bili_splash_images/actions/workflows/app_splash.yml/badge.svg)](https://github.com/Little-Data/bili_splash_images/actions/workflows/app_splash.yml) [![Web 首页头图](https://github.com/Little-Data/bili_splash_images/actions/workflows/bili_web_header.yml/badge.svg)](https://github.com/Little-Data/bili_splash_images/actions/workflows/bili_web_header.yml)
 
+[![每日壁纸喵](https://github.com/Little-Data/bili_splash_images/actions/workflows/daily_bizhiniang.yml/badge.svg)](https://github.com/Little-Data/bili_splash_images/actions/workflows/daily_bizhiniang.yml)（壁纸喵部分只是随机仓库中已有的图片）
+
 <div align="center">
 <h1>随机APP启动图</h1>
 </div>
@@ -16,6 +18,27 @@ B站WEB头图和APP开屏图自动下载，使用Actions
 
 <div align="center">
 有更新时更换一次，有可能重复，有可能是旧图。
+</div>
+
+<div align="center">
+<h1>随机壁纸喵</h1>
+</div>
+
+
+<div align="center">
+<table style="width: 100%; border-collapse: collapse;">
+  <tr>
+    <td style="padding: 5px; text-align: center; vertical-align: middle; height: 300px;">
+      <img src="/today/bizhiniang_1.png" style="max-height: 280px; border-radius: 4px;">
+    </td>
+    <td style="padding: 5px; text-align: center; vertical-align: middle; height: 300px;">
+      <img src="/today/bizhiniang_2.png" style="max-height: 280px; border-radius: 4px;">
+    </td>
+    <td style="padding: 5px; text-align: center; vertical-align: middle; height: 300px;">
+      <img src="/today/bizhiniang_3.png" style="max-height: 280px; border-radius: 4px;">
+    </td>
+  </tr>
+</table>
 </div>
 
 # 一些碎语
@@ -38,9 +61,13 @@ B站WEB头图和APP开屏图自动下载，使用Actions
   - `{日期时间命名的文件夹}`存放程序当天执行成功时获取到的文件。
   - `hash.json`记录上一次执行的时间，图片名称，图片hash。后续执行时先检查是否重复下载。
 
+`bizhiniang文件夹`手动上传的壁纸喵图片。
+
 `get_app_splash.py`App 启动图获取程序。
 
 `getimg.py`Web 首页头图获取程序。
+
+`daily_bizhiniang.py`用来更新该页面的随机壁纸喵图片，只使用仓库内的图片，每天随机。
 
 # 灵感
 
@@ -60,3 +87,4 @@ CC BY-NC-SA 4.0
 
 
 ![Star History Chart](https://api.star-history.com/svg?repos=Little-Data/bili_splash_images&type=date&legend=top-left)
+
