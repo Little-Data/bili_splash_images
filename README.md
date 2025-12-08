@@ -49,6 +49,20 @@ B站WEB头图和APP开屏图自动下载，使用Actions
 
 因为api接口数据官方随时会改变，有可能获取不到图片或者图片有误。
 
+# GitHub Action
+
+使用之前请到仓库设置中`Actions` `General` `Workflow permissions`下，选`Read and write permissions`
+
+如果你fork来使用的话，确保同页面的`Actions permissions`部分选了`Allow all actions and reusable workflows`
+
+<img width="2872" height="1832" alt="PixPin_2025-12-08_13-00-09" src="https://github.com/user-attachments/assets/70ec78c6-a366-4a2c-9e81-f9454c8b0097" />
+
+也可以自行创建`.github/workflows`文件夹，将文件复制过去。
+
+完成后请自行手动运行一次。
+
+一些没有提到的可以自行探索本仓库的写法。
+
 # 文件说明
 
 `today文件夹`用来更新该页面的图片。
@@ -68,6 +82,30 @@ B站WEB头图和APP开屏图自动下载，使用Actions
 `getimg.py`Web 首页头图获取程序。
 
 `daily_bizhiniang.py`用来更新该页面的随机壁纸喵图片，只使用仓库内的图片，每天随机。
+
+# 在本地电脑上使用
+
+python 要求：3.13+（开发时的环境）
+
+依赖：
+
+```
+# get_app_splash.py
+
+aiohttp
+orjson
+
+# getimg.py
+
+requests
+beautifulsoup4
+python-dateutil
+```
+Windows 额外依赖`get_app_splash.py`
+
+```
+tzdata
+```
 
 # 灵感
 
