@@ -2,8 +2,7 @@ name: daily_bizhiniang
 
 on:
   schedule:
-    # 中国标准时间（UTC+8）上午10点，对应 UTC 时间 2 点
-    - cron: '0 2 * * *'
+    - cron: '0 1 * * *'
   workflow_dispatch:  # 允许手动触发，方便测试
 
 jobs:
