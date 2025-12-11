@@ -2,8 +2,7 @@ name: app_splash
 
 on:
   schedule:
-    # 每天UTC时间2点执行，对应中国标准时间(UTC+8)10点
-    - cron: '0 2 * * *'
+    - cron: '0 1 * * *'
   workflow_dispatch:  # 允许手动触发
 
 jobs:
