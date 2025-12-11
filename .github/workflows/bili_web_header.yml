@@ -2,8 +2,7 @@ name: bili_web_header
 
 on:
   schedule:
-    # 每天UTC时间2点执行（对应北京时间10点，UTC+8）
-    - cron: '0 2 * * *'
+    - cron: '0 1 * * *'
   workflow_dispatch:  # 允许手动触发
 
 jobs:
