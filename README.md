@@ -123,4 +123,12 @@ CC BY-NC-SA 4.0
 
 [署名—非商业性使用—相同方式共享 4.0 协议国际版](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.zh-hans)
 
-[![Stargazers over time](https://starchart.cc/Little-Data/bili_splash_images.svg?variant=adaptive)](https://starchart.cc/Little-Data/bili_splash_images)
+## Star History
+
+<a href="https://www.star-history.com/?repos=Little-Data%2Fbili_splash_images&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Little-Data/bili_splash_images&type=date&theme=dark&legend=top-left&sealed_token=849piIQDxH-e7TxQEGdY8YefnMr1IRoqGfkPadR1PxCsqIVQflRL26ZOxFZgEexD2_dWVyy7F7IEwZD3wl65HsGo-QDa6j-EL0HL0qN8PIbweJqmPWY7sWsjVhn456AU3dJn2cD3tE6tWG4ATi0XZHrUtUiYoNLnzBnyqZuqjLQxjbrs6Ozxj3X76q-t" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Little-Data/bili_splash_images&type=date&legend=top-left&sealed_token=849piIQDxH-e7TxQEGdY8YefnMr1IRoqGfkPadR1PxCsqIVQflRL26ZOxFZgEexD2_dWVyy7F7IEwZD3wl65HsGo-QDa6j-EL0HL0qN8PIbweJqmPWY7sWsjVhn456AU3dJn2cD3tE6tWG4ATi0XZHrUtUiYoNLnzBnyqZuqjLQxjbrs6Ozxj3X76q-t" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Little-Data/bili_splash_images&type=date&legend=top-left&sealed_token=849piIQDxH-e7TxQEGdY8YefnMr1IRoqGfkPadR1PxCsqIVQflRL26ZOxFZgEexD2_dWVyy7F7IEwZD3wl65HsGo-QDa6j-EL0HL0qN8PIbweJqmPWY7sWsjVhn456AU3dJn2cD3tE6tWG4ATi0XZHrUtUiYoNLnzBnyqZuqjLQxjbrs6Ozxj3X76q-t" />
+ </picture>
+</a>
