@@ -11,12 +11,12 @@ jobs:
     
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           persist-credentials: false  # 禁用默认凭证，使用GitHub Token
       
       - name: 设置Python环境
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.13'
           
